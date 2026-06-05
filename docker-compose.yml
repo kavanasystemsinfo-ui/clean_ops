@@ -1,0 +1,127 @@
+version: '3.8'
+
+name: kavana-cleanops
+
+# =============================================================================
+# Kavana CleanOps — Full Stack Deployment
+# Services: API + PostgreSQL + Dashboard + Mobile PWA
+# =============================================================================
+
+services:
+  # ---------------------------------------------------------------------------
+  # PostgreSQL Database
+  # ---------------------------------------------------------------------------
+  db:
+    image: postgres:16-alpine
+    container_name: kavana-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: kavana
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-kavana_pass}
+      POSTGRES_DB: kavana_cleanops
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kavana -d kavana_cleanops"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - kavana-net
+
+  # ---------------------------------------------------------------------------
+  # API (Node.js + Express + Prisma)
+  # ---------------------------------------------------------------------------
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: kavana-api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      # Database — uses Docker service name 'db' instead of localhost
+      DATABASE_URL: "postgresql://kavana:${DB_PASSWORD:-kavana_pass}@db:5432/kavana_cleanops"
+      # JWT
+      JWT_SECRET: ${JWT_SECRET:-kavana-cleanops-jwt-secret-prod-2026}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-15m}
+      # Refresh Tokens
+      REFRESH_TOKEN_EXPIRY_DAYS: ${REFRESH_TOKEN_EXPIRY_DAYS:-30}
+      # Server
+      PORT: 3000
+      NODE_ENV: production
+      CORS_ORIGIN: "*"
+    ports:
+      - "3000:3000"
+    networks:
+      - kavana-net
+    # Health check via Express /health endpoint
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      start_period: 30s
+      retries: 3
+
+  # ---------------------------------------------------------------------------
+  # Dashboard Supervisor (Vite + React + nginx)
+  # ---------------------------------------------------------------------------
+  dashboard:
+    build:
+      context: ./dashboard
+      dockerfile: ../Dockerfile.dashboard
+    container_name: kavana-dashboard
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "4001:80"
+    networks:
+      - kavana-net
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+
+  # ---------------------------------------------------------------------------
+  # Mobile PWA (Vite + React + nginx)
+  # ---------------------------------------------------------------------------
+  mobile:
+    build:
+      context: ./mobile
+      dockerfile: ../Dockerfile.mobile
+    container_name: kavana-mobile
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "4000:80"
+    networks:
+      - kavana-net
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80/"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+
+# ---------------------------------------------------------------------------
+# Volumes
+# ---------------------------------------------------------------------------
+volumes:
+  pgdata:
+
+# ---------------------------------------------------------------------------
+# Networks
+# ---------------------------------------------------------------------------
+networks:
+  kavana-net:
+    driver: bridge

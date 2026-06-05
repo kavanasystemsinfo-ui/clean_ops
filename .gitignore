@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+dashboard/node_modules/
+mobile/node_modules/
+
+# Environment
+.env
+.env.local
+.env.production
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Build / Dist
+dist/
+dashboard/dist/
+mobile/dist/
+build/
+
+# Coverage
+coverage/
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# TypeScript
+*.tsbuildinfo
+
+# Docker
+credentiales.txt

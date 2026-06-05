@@ -1,0 +1,56 @@
+# =============================================================================
+# Kavana CleanOps — API Dockerfile (Node.js + Express + Prisma)
+# Multi-stage build: install → generate → run
+# =============================================================================
+
+# ---- Stage 1: Install dependencies ----
+FROM node:20-alpine AS deps
+
+WORKDIR /app
+
+# Copy package files
+COPY package.json package-lock.json ./
+
+# Install ALL dependencies (needed for prisma generate and tests)
+RUN npm ci
+
+# Copy Prisma schema
+COPY prisma/ ./prisma/
+
+# Generate Prisma Client
+RUN npx prisma generate
+
+# ---- Stage 2: Production image ----
+FROM node:20-alpine AS runner
+
+WORKDIR /app
+
+# Create non-root user
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 appuser
+
+# Copy from deps stage
+COPY --from=deps --chown=appuser:nodejs /app/node_modules ./node_modules
+COPY --from=deps --chown=appuser:nodejs /app/prisma ./prisma
+
+# Copy application source
+COPY --chown=appuser:nodejs . .
+
+# Create startup script that runs migrations then starts server
+RUN echo '#!/bin/sh\n\
+echo "[Kavana CleanOps] Running Prisma migrations..."\n\
+npx prisma migrate deploy\n\
+echo "[Kavana CleanOps] Seeding database..."\n\
+node prisma/seed.js\n\
+echo "[Kavana CleanOps] Starting server..."\n\
+exec node src/server.js\n\
+' > /app/start.sh && chmod +x /app/start.sh && chown appuser:nodejs /app/start.sh
+
+USER appuser
+
+EXPOSE 3000
+
+ENV NODE_ENV=production
+ENV PORT=3000
+
+CMD ["/app/start.sh"]
