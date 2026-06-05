@@ -36,9 +36,9 @@ echo Realizando commit...
 git commit -m "%commitMsg%"
 echo.
 
-:: Hacer push a la rama main
+:: Hacer push a la rama actual (sea main o master)
 echo [4/4] Subiendo cambios a GitHub...
-git push -u origin main
+git push -u origin HEAD
 
 echo.
 if %errorlevel% equ 0 (
