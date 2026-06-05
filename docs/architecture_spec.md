@@ -1,4 +1,4 @@
-# Architecture Specification — Kavana CleanOps
+# Architecture Specification — Kavana CleanStock
 
 > **Document Type:** Technical Architecture Specification
 > **Audience:** IT Consultants, Senior Developers, Technical Stakeholders
@@ -160,9 +160,9 @@
 
 | Image | Size | Base | Notes |
 |-------|------|------|-------|
-| `kavana-cleanops-api` | 1.09 GB | `node:20-alpine` | Prisma + Express + Socket.IO, multi-stage |
-| `kavana-cleanops-dashboard` | 74.4 MB | `nginx:1.27-alpine` | Vite build → nginx static serve + WebSocket proxy |
-| `kavana-cleanops-mobile` | 74.7 MB | `nginx:1.27-alpine` | Vite build → nginx + PWA SW |
+| `kavana-cleanstock-api` | 1.09 GB | `node:20-alpine` | Prisma + Express + Socket.IO, multi-stage |
+| `kavana-cleanstock-dashboard` | 74.4 MB | `nginx:1.27-alpine` | Vite build → nginx static serve + WebSocket proxy |
+| `kavana-cleanstock-mobile` | 74.7 MB | `nginx:1.27-alpine` | Vite build → nginx + PWA SW |
 | `postgres:16-alpine` | 396 MB | `alpine:3.21` | PostgreSQL 16 Alpine |
 
 ### Key Files

@@ -1,4 +1,4 @@
-# Deployment Guide — Kavana CleanOps
+# Deployment Guide — Kavana CleanStock
 
 > **Document Type:** Technical Deployment Guide
 > **Target:** DevOps, IT Operations
@@ -21,14 +21,14 @@
                    ▼                                   ▼
          ┌──────────────────────────────────────────────┐
          │           Internal Docker Network            │
-         │              kavana-cleanops_kavana-net       │
+         │              kavana-cleanstock_kavana-net    │
          └──────────────────────────────────────────────┘
                                 │
                                 ▼
                    ┌──────────────────────┐
                    │  PostgreSQL 16       │
                    │  :5432               │
-                   │  kavana_cleanops     │
+                   │  kavana_cleanstock   │
                    └──────────────────────┘
 ```
 
@@ -68,8 +68,8 @@ Ejecuta [`start.bat`](start.bat) haciendo doble clic desde el explorador de arch
 ### 1. Clone and enter the project
 
 ```bash
-git clone <repository-url> kavana-cleanops
-cd kavana-cleanops
+git clone <repository-url> kavana-cleanstock
+cd kavana-cleanstock
 ```
 
 ### 2. Start all services
@@ -118,7 +118,7 @@ Create a `.env` file in the project root (or copy from `.env.example`):
 DB_PASSWORD=kavana_pass
 
 # JWT (change for production!)
-JWT_SECRET=kavana-cleanops-jwt-secret-prod-2026
+JWT_SECRET=kavana-cleanstock-jwt-secret-prod-2026
 JWT_EXPIRES_IN=15m
 
 # Refresh Tokens
@@ -163,13 +163,13 @@ docker compose up --build -d
 **Backup PostgreSQL database:**
 
 ```bash
-docker exec kavana-db pg_dump -U kavana kavana_cleanops > backup_$(date +%Y%m%d_%H%M%S).sql
+docker exec kavana-db pg_dump -U kavana kavana_cleanstock > backup_$(date +%Y%m%d_%H%M%S).sql
 ```
 
 **Restore:**
 
 ```bash
-docker exec -i kavana-db psql -U kavana kavana_cleanops < backup.sql
+docker exec -i kavana-db psql -U kavana kavana_cleanstock < backup.sql
 ```
 
 ### Stop and clean up

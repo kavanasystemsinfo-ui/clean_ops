@@ -1,4 +1,4 @@
-# Internal Roadmap — Kavana CleanOps
+# Internal Roadmap — Kavana CleanStock
 
 > **Propósito:** Control de estado del proyecto, decisiones técnicas tomadas y planificación viva.
 > **Última actualización:** 2026-06-05 (Hito 5 — Socket.IO en tiempo real)
@@ -222,9 +222,9 @@ El dashboard exporta datos en formato CSV con BOM UTF-8 para compatibilidad con 
   - Escalado horizontal y CDN
   - Troubleshooting de servicios
 - [x] **Build verificado de 4 imágenes Docker**:
-  - `kavana-cleanops-api` — 1.09 GB (Node.js + Prisma + dependencias)
-  - `kavana-cleanops-dashboard` — 74.4 MB (nginx + static assets)
-  - `kavana-cleanops-mobile` — 74.7 MB (nginx + static assets + PWA)
+  - `kavana-cleanstock-api` — 1.09 GB (Node.js + Prisma + dependencias)
+  - `kavana-cleanstock-dashboard` — 74.4 MB (nginx + static assets)
+  - `kavana-cleanstock-mobile` — 74.7 MB (nginx + static assets + PWA)
   - `postgres:16-alpine` — 396 MB (base de datos)
 - [x] **Fix: errores TypeScript en mobile**:
   - `useCallback` importado pero no usado en `useOnlineStatus.ts`
@@ -315,5 +315,5 @@ El dashboard exporta datos en formato CSV con BOM UTF-8 para compatibilidad con 
 - La PWA móvil se sirve desde `mobile/` con Vite en puerto `4000`, con proxy a la API en `http://localhost:3000`
 - El flujo offline: Login (requiere conexión) → carga inventario en IndexedDB → consume sin conexión (cola) → sincronización batch al recuperar conexión
 - `useOnlineStatus` hook detecta cambios de conectividad vía eventos `online`/`offline` del navegador
-- La DB se llama `kavana_cleanops` en PostgreSQL 16 dentro de Docker
+- La DB se llama `kavana_cleanstock` en PostgreSQL 16 dentro de Docker
 - El esquema de tests se compone de 6 suites con **92 tests totales**, usando mocks de Prisma y logger
