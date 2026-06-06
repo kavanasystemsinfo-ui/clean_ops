@@ -36,5 +36,6 @@ Thumbs.db
 # TypeScript
 *.tsbuildinfo
 
-# Docker
+# Credenciales (NUNCA subir a GitHub)
+credenciales.txt
 credentiales.txt
