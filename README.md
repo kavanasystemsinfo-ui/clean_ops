@@ -54,13 +54,16 @@ npm run test
 
 ---
 
-## Seguridad y Robustez en Producción
+## Módulos Enterprise Implementados
 
-Recientemente hemos implementado mejoras críticas para asegurar la aplicación:
-1. **Validación de Consumos**: La API `/stock/consume` valida que las cantidades de consumo sean enteros estrictamente positivos (> 0). Las salidas se registran con signo negativo en el historial y la base de datos de manera interna.
-2. **Protección de Centro Bypass**: El rol de `limpiador` solo puede registrar consumos en su centro de trabajo asignado. Intentos de alterar stock en otros centros devuelven un código HTTP `403 (Forbidden)`.
-3. **Redirección HTTPS y CORS**: En producción, el servidor fuerza el tráfico seguro y restringe el acceso de CORS únicamente a los orígenes definidos en `CORS_ORIGIN`.
-4. **Manejo de Errores de Conexión**: Las peticiones interceptan fallos de red y devuelven una alerta amigable en español.
-5. **Caducidad de Sesión**: Redirección fluida al login con explicación de expiración cuando los tokens JWT han caducado.
+Recientemente hemos implementado mejoras críticas para asegurar la aplicación y dotarla de capacidad Enterprise:
 
-Para ver las decisiones arquitectónicas detalladas, consulta [DECISIONES_ESTRATEGICAS.md](file:///c:/Users/jorge/Desktop/proyectos%20IA/kavana%20cleanops/DECISIONES_ESTRATEGICAS.md).
+1. **Inteligencia Financiera (OPEX y Desviaciones)**: Cálculo del "Hambre de material" en tiempo real usando Consumos Teóricos. El dashboard traduce las unidades consumidas a impacto económico (OPEX) usando el coste de adquisición del producto y alertas financieras si se supera el presupuesto asignado al centro.
+2. **Propuestas de Compra Predictivas (CSV)**: Generador inteligente de propuestas de pedido que calcula el déficit entre el stock mínimo y el actual, estimando el coste total por proveedor. Permite exportación a formato `.csv` compatible con Excel y sistemas ERP de contabilidad.
+3. **Gestión Integral de Incidencias**: Flujo completo de reportes desde el cliente móvil PWA para reportar fallos en campo (Limpieza, Fontanería, etc.) hasta el dashboard de supervisión para su resolución.
+4. **Sistema de Alertas y Reglas de Notificación**: Motor de notificaciones dinámico. Los administradores pueden suscribirse a eventos específicos (ej. "Avisarme si Carlos saca Lejía", o "Avisarme de cualquier consumo en la Fábrica Norte").
+5. **Seguridad y Anti-Fraude**: 
+   - Restricción estricta (Bypass) de Centros por ROL y protección CORS dinámica.
+   - Refactor de la arquitectura para soportar sesiones persistentes (`Refresh Tokens`) e interceptores de red para caídas de cobertura en sótanos/fábricas.
+
+Para ver las decisiones arquitectónicas en detalle técnico, consulta [DECISIONES_ESTRATEGICAS.md](./DECISIONES_ESTRATEGICAS.md).

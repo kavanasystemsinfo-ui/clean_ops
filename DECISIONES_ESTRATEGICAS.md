@@ -35,3 +35,18 @@ Este documento registra el "por qué" de las decisiones arquitectónicas y de di
   - Se guarda una clave en `localStorage` (`auth_error`) con un mensaje explicativo: *"Su sesión ha expirado. Por favor, inicie sesión de nuevo."*
   - Se dispara un evento global de ventana (`auth:unauthorized`).
   - El componente raíz (`App.tsx`) reacciona al evento devolviendo el estado al Login, donde el formulario lee la clave de error del `localStorage`, la muestra de forma amigable y la limpia.
+
+## 6. Generador de Propuestas de Compra (Lado del Servidor vs Cliente)
+* **Problema**: El sistema necesitaba generar un listado de productos a reponer basado en el stock mínimo. Si se generaba en el Frontend (React), obligaría a descargar todo el inventario de la empresa (miles de registros) para luego filtrarlos en el navegador, causando problemas de rendimiento en tablets/móviles antiguos.
+* **Solución**: La lógica de cálculo del déficit (`stock_actual` - `stock_minimo`) y estimación de coste de pedido se centralizó completamente en el Backend (`purchaseController.js`).
+* **Decisión Técnica**: El backend procesa todo en la base de datos y solo envía por red un objeto JSON muy ligero con los productos estrictamente necesarios a comprar. El frontend solo se encarga de convertir ese JSON a un Blob y disparar la descarga de un `.csv` estructurado.
+
+## 7. Arquitectura del Motor de Notificaciones por Eventos
+* **Problema**: Los supervisores querían ser avisados de robos o consumos excesivos de material. No querían recibir un email por cada cepillo que se cogiera, sino establecer reglas precisas (ej. "Solo avísame si sacan Lejía en el CEIP San Juan").
+* **Solución**: Creación de un sistema de "Reglas de Notificación" que actúa como un Webhook interno.
+* **Decisión Técnica**: En lugar de saturar el frontend con lógica de reglas, el controlador de stock (`stockController.js`), cada vez que registra un consumo, consulta la tabla `ReglasNotificacion`. Si el consumo hace "match" (coincide el `id_centro`, `id_producto` o `id_operario`), se crea una `Notificacion` asíncrona. La PWA y el Dashboard consultan estas notificaciones sin interrumpir el flujo del limpiador.
+
+## 8. Tratamiento de Errores Cors (El falso Error 500)
+* **Problema**: Tras configurar la variable de entorno `CORS_ORIGIN=*`, el sistema devolvía un `500 Internal Server Error` bloqueando todos los inicios de sesión desde React. Express interceptaba el fallo del middleware CORS nativo y lo encapsulaba como un error global de servidor, en lugar de un `403 Forbidden`.
+* **Solución**: Se implementó una lógica de validación CORS condicional robusta en `server.js`.
+* **Decisión Técnica**: Se parcheó la función de retorno (callback) del CORS. Ahora comprueba explícitamente `if (allowedOrigins.includes('*')) return callback(null, true);`. Esto evita que la librería evalúe literalmente el asterisco como una URL inválida.
